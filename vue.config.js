@@ -1,4 +1,4 @@
 module.exports = {
-    publicPath: './',
+    publicPath: 'https://zsj975516.github.io/zsj975516/',
     outputDir: 'docs'
 }
