@@ -185,3 +185,7 @@ export async function increment (tableName, objectId, fields = [], num = 1) {
   return res.save()
 }
 
+export function timestamp () {
+  return Bmob.timestamp();
+}
+
