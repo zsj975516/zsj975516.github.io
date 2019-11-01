@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 
 Vue.use(VueRouter)
 
+const Bmob = require('../util/bmob')
+
 const routes = [
   {
     path: '/',
@@ -33,6 +35,15 @@ const routes = [
     component: () => import( '../views/MyProjectList.vue')
   },
   {
+    path: '/photo',
+    name: 'photo',
+    component: () => import( '../views/Photo.vue'),
+    meta: {
+      title: '相册',
+      isNeedLogin: true
+    }
+  },
+  {
     path: '*',
     name: '404',
     component: () => import( '../views/404.vue'),
@@ -49,16 +60,13 @@ const router = new VueRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  console.log(to, from)
+router.beforeEach(async (to, from, next) => {
   if (to.meta.isNeedLogin) {
-    let isLogin = myStorage.getItem('isLogin', false)
-    if (isLogin) next()
-    else next('/login')
-  } else {
-    document.title = to.meta.title
-    next()
+    let isLogin = await Bmob.current()
+    if (!isLogin) next('/login')
   }
+  document.title = to.meta.title
+  next()
 })
 
 export default router

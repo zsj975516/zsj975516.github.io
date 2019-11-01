@@ -3,15 +3,15 @@
     <div class="login-content-box" :class="{'is-login':isLogin}">
       <div class="form-container sign-up-container">
         <div class="title">注册</div>
-        <input type="text" v-model="username" placeholder="用户名">
-        <input type="email" v-model="email" placeholder="邮箱">
-        <input type="password" v-model="password" placeholder="密码">
+        <input-box class="input" type="text" v-model="username" placeholder="用户名"></input-box>
+        <input-box class="input" type="email" v-model="email" placeholder="邮箱"></input-box>
+        <input-box class="input" type="password" v-model="password" placeholder="密码"></input-box>
         <div class="btn" @click="register">注册</div>
       </div>
       <div class="form-container sign-in-container">
         <div class="title">登录</div>
-        <input type="text" v-model="username" placeholder="用户名">
-        <input type="password" v-model="password" placeholder="密码">
+        <input-box class="input" type="text" v-model="username" placeholder="用户名"></input-box>
+        <input-box class="input" type="password" v-model="password" placeholder="密码"></input-box>
         <div class="forget-password">忘记密码？</div>
         <div class="btn" @click="login">登录</div>
       </div>
@@ -34,16 +34,19 @@
 </template>
 
 <script>
+  import InputBox from '../components/InputBox'
+
   const Bmob = require('../util/bmob')
 
   export default {
+    components: {InputBox},
     data () {
       return {
         isLogin: true,
-        username: 'a',
-        email: 'a',
-        phone: 'a',
-        password: 'a'
+        username: '',
+        email: '',
+        phone: '',
+        password: ''
       }
     },
     watch: {
@@ -63,9 +66,30 @@
     },
     methods: {
       async register () {
-        if (!this.username) return
-        if (!this.email) return
-        if (!this.password) return
+        if (!this.username) {
+          this.$notify({
+            type: 'error',
+            title: '注册失败',
+            message: '请输入用户名'
+          })
+          return
+        }
+        if (!this.email) {
+          this.$notify({
+            type: 'error',
+            title: '注册失败',
+            message: '请输入邮箱'
+          })
+          return
+        }
+        if (!this.password) {
+          this.$notify({
+            type: 'error',
+            title: '注册失败',
+            message: '请输入密码'
+          })
+          return
+        }
         try {
           await Bmob.register({
             username: this.username,
@@ -73,26 +97,51 @@
             email: this.email,
             phone: this.phone,
           })
+          this.$notify({
+            type: 'success',
+            message: '注册成功'
+          })
           this.isLogin = true
         } catch (e) {
-          console.log(e)
-          alert(e.error)
+          console.error(e)
+          this.$notify({
+            type: 'error',
+            title: '注册失败',
+            message: e.error || e.message
+          })
         }
       },
       async login () {
-        if (!this.username) return
-        if (!this.password) return
-        try {
-          let res = await Bmob.login(this.username, this.password)
-          console.log(res)
-        } catch (e) {
-          console.log(e)
+        if (!this.username) {
           this.$notify({
-            title: '标题名称',
-            // message: '这是提示文案这是提示文案这是提示文案这是提示文案这是提示文案这是提示文案这是提示文案这是提示文案'
-            message: e.error
+            type: 'error',
+            title: '登录失败',
+            message: '请输入用户名'
           })
-          // alert(e.error)
+          return
+        }
+        if (!this.password) {
+          this.$notify({
+            type: 'error',
+            title: '登录失败',
+            message: '请输入密码'
+          })
+          return
+        }
+        try {
+          await Bmob.login(this.username, this.password)
+          this.$notify({
+            type: 'success',
+            message: '登录成功'
+          })
+          this.$router.replace('/')
+        } catch (e) {
+          console.error(e)
+          this.$notify({
+            type: 'error',
+            title: '登录失败',
+            message: e.error || e.message
+          })
         }
       }
     }
@@ -138,19 +187,14 @@
           text-align: center;
         }
 
-        input {
+        .input {
           height: 40px;
           padding: 0 15px;
           display: block;
           width: 100%;
           margin: 8px 0;
           border-radius: 5px;
-          border: 1px solid #ccc;
           outline: none;
-
-          &:focus {
-            border-color: #FF4B2B;
-          }
         }
 
         .forget-password {

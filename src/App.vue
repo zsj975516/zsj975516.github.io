@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view/>
+    <router-view class="router-view"/>
   </div>
 </template>
 
@@ -13,5 +13,11 @@
   #app {
     height: 100vh;
     width: 100vw;
+
+    .router-view {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+    }
   }
 </style>

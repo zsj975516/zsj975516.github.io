@@ -1,24 +1,53 @@
 <template>
-  <div class="notification-box" :style="{zIndex,top}">
+  <div class="notification-box"
+       :style="{zIndex,top}"
+       @mouseover="stopTimer"
+       @mouseleave="startTimer">
+    <!--    <div class="notification__icon" :class="type" v-if="type"></div>-->
+    <font-icon class="notification__icon" :href="`#icon-${type}`" v-if="type"></font-icon>
     <div class="notification__group">
-      <h2 class="notification__title">{{title}}</h2>
-      <div class="notification__content">
+      <h2 class="notification__title" v-if="title">{{title}}</h2>
+      <div class="notification__content" v-if="message">
         <p>{{message}}</p>
       </div>
-      <div class="notification__close"></div>
+      <div class="notification__close" @click="handleClose"></div>
     </div>
   </div>
 </template>
 
 <script>
+  import FontIcon from '../../FontIcon'
+
   export default {
     name: "Notification",
+    components: {FontIcon},
     data () {
       return {
         zIndex: 0,
         top: 0,
-        title: '提示',
-        message: '这是一条不会自动关闭的消息'
+        type: '',
+        title: '',
+        message: '',
+        timeout: 4000,
+        timer: null
+      }
+    },
+    mounted () {
+      this.startTimer()
+    },
+    methods: {
+      startTimer () {
+        if (this.timeout === 0) return
+
+        this.timer = setTimeout(() => {
+          if (this._isDestroyed) return
+          if (this.handleClose) this.handleClose()
+        }, this.timeout)
+      },
+      stopTimer () {
+        if (this.timer !== null) clearTimeout(this.timer)
+      },
+      handleClose () {
       }
     }
   }
@@ -35,9 +64,28 @@
     position: fixed;
     background-color: #fff;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
-    transition: opacity .3s, transform .3s, left .3s, right .3s, top .4s, bottom .3s;
+    /*transition: opacity .3s, transform .3s, left .3s, right .3s, top .4s, bottom .3s;*/
+    transition-duration: 0.4s;
     overflow: hidden;
-    right: 16px;
+    margin: auto;
+    left: 0;
+    right: 0;
+
+    .notification__icon {
+      width: 26px;
+      height: 26px;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 26px;
+
+      &.error {
+        background-image: url("../../../assets/img/error.png");
+      }
+
+      & + .notification__group {
+
+      }
+    }
 
     .notification__group {
       margin-left: 13px;

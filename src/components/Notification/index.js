@@ -5,18 +5,45 @@ const ComponentConstructor = Vue.extend(Component)
 
 let zIndex = 2000
 
+const msgs = []
+
 function showMsg (arg) {
-  zIndex++
-  console.log(arg, zIndex)
+  const instance = new ComponentConstructor({
+    data: {
+      ...arg,
+      zIndex: ++zIndex
+    }
+  })
 
-  const instance = new ComponentConstructor({el: document.createElement('div')})
-
+  instance.$mount();
   document.body.appendChild(instance.$el)
 
-  instance.title = arg.title
-  instance.message = arg.message
-  instance.zIndex = zIndex
-  instance.top = '16px'
+
+  const oldClose = instance.handleClose
+  instance.handleClose = () => {
+    oldClose()
+    instance.$destroy()
+    document.body.removeChild(instance.$el)
+    let index = msgs.findIndex(item => instance === item)
+    if (index > -1) msgs.splice(index, 1)
+
+    msgs.map((item, index) => {
+      let top = 16
+      for (let i = 0; i < index; i++) {
+        top += 16 + msgs[i].$el.offsetHeight
+      }
+
+      item.top = `${top}px`
+    })
+  }
+  let top = 16
+  if (msgs.length) {
+    let el = msgs[msgs.length - 1].$el
+    top += el.offsetHeight + el.offsetTop
+  }
+  instance.top = `${top}px`
+
+  msgs.push(instance)
 }
 
 Component.install = $Vue => {
